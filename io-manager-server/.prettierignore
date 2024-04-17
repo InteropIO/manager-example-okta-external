@@ -1,0 +1,6 @@
+.idea
+.vscode
+dist
+coverage
+
+src/**/*.js
