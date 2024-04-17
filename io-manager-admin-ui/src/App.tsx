@@ -17,7 +17,7 @@ export const App = () => {
       <AdminUI
         apiURL="http://localhost:4356/api"
         theme="dark"
-        baseName=""
+        baseName="admin"
         auth={authProvider}
       />
     </>

@@ -37,17 +37,22 @@ export const CustomOktaProvider = ({
   const [authState, setAuthState] = useState<AuthState | null>(null);
 
   const restoreOriginalUri = useCallback(
-    (oktaAuth: OktaAuth, originalUri: string) => {
+    (_oktaAuth: OktaAuth, originalUri: string) => {
+      console.log(
+        '[io.Manager Admin UI Auth] Restoring original url. originalUri =',
+        originalUri
+      );
+
       history.replaceState(
         null,
         '',
-        toRelativeUrl(originalUri || defaultOriginalUrl, window.location.origin)
+        toRelativeUrl(originalUri || defaultOriginalUrl, location.origin)
       );
     },
     []
   );
 
-  const signInWithInProgressRef = useRef(false);
+  const signInInProgressRef = useRef(false);
 
   useEffect(() => {
     // authState has not initialized yet.
@@ -56,32 +61,47 @@ export const CustomOktaProvider = ({
       return;
     }
 
-    // If we have initiated a redirect already.
-    if (signInWithInProgressRef.current) {
-      return;
-    }
-
-    // This should exist if correctly configured.
-    if (!oktaAuth.options.redirectUri) {
-      throw new Error('oktaAuth.options.redirectUri is falsy');
-    }
-
     // If we are on the redirect url of our app - let `LoginCallback` do its work.
     // After that `restoreOriginalUri` will be called and will redirect to the correct place iun our app.
-    if (location.href.startsWith(oktaAuth.options.redirectUri)) {
+    // We don't use `oktaAuth.isLoginRedirect()` here, because it also checks
+    // for the data in the url that may have been cleaned up by `LoginCallback` at this point in time.
+    if (isRedirectUri(oktaAuth)) {
+      console.log(
+        '[io.Manager Admin UI Auth] CustomOktaProvider effect - Redirect handled.'
+      );
       return;
     }
 
     if (!authState.isAuthenticated) {
-      // It's ok that we never flip it back to false because this happens immediately before top level navigation.
-      // The point is that we don't call `signInWithRedirect` more that once.
-      signInWithInProgressRef.current = true;
+      console.log(
+        '[io.Manager Admin UI Auth] CustomOktaProvider effect - Not authenticated.'
+      );
 
-      void oktaAuth.signInWithRedirect({
-        originalUri: location.pathname, // Where to redirect back to after auth is done. Will be passed to `restoreOriginalUri`.
-      });
+      // If we have not initiated a redirect already.
+      if (!signInInProgressRef.current) {
+        // It's ok that we never flip it back to false because this happens immediately before top level navigation.
+        // The point is that we don't call `signInWithRedirect` more that once.
+        signInInProgressRef.current = true;
+
+        console.log(
+          '[io.Manager Admin UI Auth] CustomOktaProvider effect - Redirecting to the Okta sign-in page.'
+        );
+        void oktaAuth.signInWithRedirect({
+          // Where to redirect back to after auth is done. Will be passed to `restoreOriginalUri`.
+          originalUri: location.pathname,
+        });
+      }
     }
   }, [authState?.isAuthenticated, oktaAuth]);
+
+  console.log(
+    '[io.Manager Admin UI Auth] CustomOktaProvider render -',
+    !authState
+      ? 'Auth state not initialized.'
+      : authState.isAuthenticated
+        ? 'Authenticated.'
+        : 'Not authenticated.'
+  );
 
   return (
     <Security oktaAuth={oktaAuth} restoreOriginalUri={restoreOriginalUri}>
@@ -93,6 +113,15 @@ export const CustomOktaProvider = ({
     </Security>
   );
 };
+
+function isRedirectUri(oktaAuth: OktaAuth): boolean {
+  // This should exist if correctly configured.
+  if (!oktaAuth.options.redirectUri) {
+    throw new Error('oktaAuth.options.redirectUri is falsy');
+  }
+
+  return location.href.startsWith(oktaAuth.options.redirectUri);
+}
 
 interface OktaConsumerProps {
   onAuthStateChange: (authState: AuthState | null) => void;
@@ -121,10 +150,18 @@ export const useCustomOktaProvider = () => {
       addUsernameToRequest: false,
 
       getAccessToken: async () => {
+        console.log(
+          '[io.Manager Admin UI Auth] useCustomOktaProvider - Calling getAccessToken()'
+        );
+
         return oktaAuth.getAccessToken();
       },
 
       getUserInfo: async () => {
+        console.log(
+          '[io.Manager Admin UI Auth] useCustomOktaProvider - Calling getUserInfo()'
+        );
+
         const user = await oktaAuth.getUser();
         return { id: user.sub };
       },
@@ -132,10 +169,21 @@ export const useCustomOktaProvider = () => {
       // This should technically never get called, because the user is authenticated
       // before this hook runs, but we implement it anyway.
       loginIfNeeded: async () => {
-        await oktaAuth.signInWithRedirect();
+        console.log(
+          '[io.Manager Admin UI Auth] useCustomOktaProvider - Calling loginIfNeeded()'
+        );
+
+        await oktaAuth.signInWithRedirect({
+          // Where to redirect back to after auth is done. Will be passed to `restoreOriginalUri`.
+          originalUri: location.pathname,
+        });
       },
 
       logOut: async () => {
+        console.log(
+          '[io.Manager Admin UI Auth] useCustomOktaProvider - Calling logOut()'
+        );
+
         await oktaAuth.signOut();
       },
 

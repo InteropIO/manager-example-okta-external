@@ -135,7 +135,7 @@ async function run() {
     issuer: 'https://trial-8928888.okta.com',
     clientId: '0oad79q0vdoCO8Nnj697',
     // Add the `offline_access` scope in order to get a refresh token.
-    scopes: ['openid', 'email', 'offline_access'],
+    scopes: ['openid', 'email', 'profile', 'offline_access'],
 
     redirectUri: location.origin + '/login/callback',
     restoreOriginalUri: async (_oktaAuth, originalUri) => {

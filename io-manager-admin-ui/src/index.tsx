@@ -6,6 +6,11 @@ import { OktaAuth } from '@okta/okta-auth-js';
 import { App } from './App';
 import { CustomOktaProvider } from './CustomOktaProvider';
 
+console.log(
+  '[io.Manager Admin UI Auth] Initializing. location.href =',
+  location.href
+);
+
 // TODO: Specify the appropriate okta client options here.
 const oktaAuth = new OktaAuth({
   issuer: 'https://trial-8928888.okta.com',
@@ -14,9 +19,11 @@ const oktaAuth = new OktaAuth({
   redirectUri: location.origin + '/login/callback',
 });
 
+console.log('[io.Manager Admin UI Auth] SDK initialized.');
+
 ReactDOM.render(
   <StrictMode>
-    <CustomOktaProvider oktaAuth={oktaAuth} defaultOriginalUrl="/">
+    <CustomOktaProvider oktaAuth={oktaAuth} defaultOriginalUrl="/admin">
       <App />
     </CustomOktaProvider>
   </StrictMode>,
