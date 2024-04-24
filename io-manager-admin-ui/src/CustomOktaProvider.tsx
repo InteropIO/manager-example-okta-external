@@ -94,6 +94,13 @@ export const CustomOktaProvider = ({
     }
   }, [authState?.isAuthenticated, oktaAuth]);
 
+  if (isLogOutUrl()) {
+    console.log(
+      '[io.Manager Admin UI Auth] OktaAuthProvider render - Logged out page.'
+    );
+    return <LoggedOutPage />;
+  }
+
   console.log(
     '[io.Manager Admin UI Auth] CustomOktaProvider render -',
     !authState
@@ -121,6 +128,30 @@ function isRedirectUri(oktaAuth: OktaAuth): boolean {
   }
 
   return location.href.startsWith(oktaAuth.options.redirectUri);
+}
+
+function getLogOutUrl() {
+  return `${location.origin}/admin/logout`;
+}
+
+function isLogOutUrl() {
+  return location.href.startsWith(getLogOutUrl());
+}
+
+function LoggedOutPage() {
+  const handleOnLogin = useCallback(() => {
+    location.href = `${location.origin}/admin`;
+  }, []);
+
+  return (
+    <div className="h-100 d-flex flex-column justify-content-center align-items-center gap-2">
+      <div>You have been logged out.</div>
+
+      <button type="button" className="btn btn-primary" onClick={handleOnLogin}>
+        Log back in
+      </button>
+    </div>
+  );
 }
 
 interface OktaConsumerProps {
@@ -184,7 +215,7 @@ export const useCustomOktaProvider = () => {
           '[io.Manager Admin UI Auth] useCustomOktaProvider - Calling logOut()'
         );
 
-        await oktaAuth.signOut();
+        await oktaAuth.signOut({ postLogoutRedirectUri: getLogOutUrl() });
       },
 
       // If this hook runs, we are already authenticated.

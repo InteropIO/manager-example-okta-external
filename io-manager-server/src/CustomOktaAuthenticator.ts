@@ -13,12 +13,11 @@ export class CustomOktaAuthenticator implements CustomAuthenticator {
   initialize() {
     // TODO: Specify the appropriate okta verifier options here.
     this.#oktaVerifier = new OktaJwtVerifier({
-      issuer: 'https://trial-8928888.okta.com',
-      jwksUri: 'https://trial-8928888.okta.com/oauth2/v1/keys',
+      issuer: 'https://trial-8928888.okta.com/oauth2/default',
     });
 
     // TODO: Specify the appropriate audiences here.
-    this.#audiences = ['https://trial-8928888.okta.com'];
+    this.#audiences = ['api://default'];
   }
 
   authenticate(

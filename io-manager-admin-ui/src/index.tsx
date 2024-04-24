@@ -13,7 +13,7 @@ console.log(
 
 // TODO: Specify the appropriate okta client options here.
 const oktaAuth = new OktaAuth({
-  issuer: 'https://trial-8928888.okta.com',
+  issuer: 'https://trial-8928888.okta.com/oauth2/default',
   clientId: '0oad61o511I0CQ7Sr697',
 
   redirectUri: location.origin + '/login/callback',
