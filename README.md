@@ -1,6 +1,7 @@
-# io.Manager Okta Example
+# io.Manager custom authentication example (using Okta)
 
-This example demonstrates how to setup a io.Manager instance to use Okta authentication (OAuth2 & OIDC).
+**NOTE: This is an example implementation of custom authentication and authorization for io.Manager that just happens to be using Okta. io.Manager has out of the box support for Okta authentication/authorization. An example can be found here: https://github.com/InteropIO/manager-example-okta**
+
 
 ## Prerequisites
 
