@@ -132,8 +132,8 @@ async function run() {
   // Initialize the Okta SDK.
   const oktaAuth = new OktaAuth({
     // TODO: Specify the appropriate okta client options here.
-    issuer: 'https://trial-8928888.okta.com/oauth2/default',
-    clientId: '0oad79q0vdoCO8Nnj697',
+    issuer: 'https://dev-10894256.okta.com/oauth2/default',
+    clientId: '0oaitfid6useO6A4Q5d7',
     // Add the `offline_access` scope in order to get a refresh token.
     scopes: ['openid', 'email', 'profile', 'offline_access'],
 
